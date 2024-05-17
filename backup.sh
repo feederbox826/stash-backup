@@ -44,10 +44,7 @@ process_backup() {
         mv "$filename" "$filename.full.sqlite"
         filename="$filename.full.sqlite"
         file_size="$(du -bhL "$filename" | cut -f1)"
-        echo "Backup complete - $filename | size: $file_size"
-        if $NOTIFY_ENABLED; then
-            notify "$filename" false "$file_size"
-        fi
+        notify "$filename" false "$file_size"
         return
     fi
     # check new file
@@ -60,12 +57,16 @@ process_backup() {
     outdated_date=$(date +%s --date="-7 days")
     if (( new_schema == old_schema )) && (( old_date > outdated_date)); then
         sqldiff --primarykey "$lastfile" "$filename" > "$filename.diff.sql"
-        rm "$filename"
-        diff_size="$(du -bhL "$filename.diff.sql" | cut -f1)"
-        echo "Backup complete - $filename.diff.sql | diff: $diff_size"
-        if $NOTIFY_ENABLED; then
-            notify "$filename.diff.sql" true "$diff_size"
+        # check size of diff
+        linediff="$(wc -l "$filename.diff.sql" | cut -f1)"
+        if (( linediff > 200 )); then
+            echo "> 200 changes, making full backup"
+            rm "$filename.diff.sql"
+        else
+            rm "$filename"
+            diff_size="$(du -bhL "$filename.diff.sql" | cut -f1)"
         fi
+        notify "$filename.diff.sql" true "$diff_size"
     fi
 }
 
