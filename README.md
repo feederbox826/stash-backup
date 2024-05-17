@@ -10,6 +10,5 @@ Configure upload and notify with the .example.sh files
 
 # Restoration
 ```bash
-
 cat backup.diff.sql | sqlite3 parent.db
 ```

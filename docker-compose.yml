@@ -1,0 +1,9 @@
+services:
+  stash-backup:
+    image: ghcr.io/feederbox826/stash-back
+    volumes:
+     - ./stash-backup:/app/backup
+    environment:
+      - STASH_URL=http://stash:9999
+      - STASH_APIKEY=eyJ
+      - CRON_SCHEDULE=*/10 * * * * # every 10 minutes

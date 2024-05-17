@@ -2,13 +2,20 @@
 
 # load environment variables
 # shellcheck source=/dev/null
-source .env.sh
+if [[ -f ".env.sh" ]]; then source .env.sh; fi
 source upload.sh
 source notify.sh
 
+validate() {
+    if [ -z "$STASH_URL" ] || [ -z "$STASH_APIKEY" ]; then
+        echo "STASH_URL and STASH_APIKEY must be set"
+        exit 1
+    fi
+}
+
 # trigger backup from GQL
 download() {
-    download_url=$(curl -s \
+    download_url=$(curl -Ssk \
     -X POST \
     -H "Content-Type: application/json" \
     -H "ApiKey: $STASH_APIKEY" \
@@ -16,8 +23,7 @@ download() {
     | jq -r '.data.backupDatabase')
     # download backup
     filename=$(basename "$download_url")
-    filename+=".full.sqlite"
-    curl -sLo "$filename" \
+    curl -sko "$filename" \
         -H "ApiKey: $STASH_APIKEY" \
         "$download_url"
     echo "$filename"
@@ -31,12 +37,15 @@ process_backup() {
     mkdir -p "$basedir" && cd "$basedir" || exit
 
     # find full backup file
-    lastfile=$(find . -type f -mtime -7 -name "*.full.sqlite" | head -n1)
+    lastfile=$(find . -type f -mtime -7 -name "*.full.sqlite" | tail -n1)
     # if no lastfile, just download and exit
-    if [ -z "$lastfile" ]; then
-        download
+    if [[ ! -f "$lastfile" ]]; then
+        filename=$(download)
+        mv "$filename" "$filename.full.sqlite"
+        filename="$filename.full.sqlite"
+        file_size="$(du -h "$filename" | cut -f1)"
+        echo "Backup complete - $filename | size: $file_size"
         if $NOTIFY_ENABLED; then
-            file_size="$(du -h "$filename" | cut -f1)"
             notify "$filename" false "$file_size"
         fi
         return
@@ -53,12 +62,14 @@ process_backup() {
         sqldiff --primarykey "$lastfile" "$filename" > "$filename.diff.sql"
         rm "$filename"
         DIFF_SIZE="$(du -h "$filename.diff.sql" | cut -f1)"
+        echo "Backup complete - $filename | diff: $DIFF_SIZE"
         if $NOTIFY_ENABLED; then
             notify "$filename.diff.sql" true "$DIFF_SIZE"
         fi
     fi
 }
 
+validate
 process_backup
 # upload with tool
 if $UPLOAD_ENABLED; then
