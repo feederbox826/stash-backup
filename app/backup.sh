@@ -6,6 +6,12 @@
 [ ! -f .env ] || export $(xargs <.env)
 source upload.sh
 source notify.sh
+source utils.sh
+
+trap ctrl_c INT
+function ctrl_c() {
+    exit 1
+}
 
 validate() {
     if [ -z "$STASH_URL" ] || [ -z "$STASH_APIKEY" ]; then
@@ -53,14 +59,17 @@ process_backup() {
         return
     fi
     # check new file
-    old_schema="$(echo "$lastfile" | cut -d'.' -f4)"
-    old_date="$(echo "$lastfile" | cut -d'.' -f5 | cut -d'_' -f1 | date +%s -f -)"
+    # shellcheck disable=SC2207
+    oldFileInfo=( $(readFileName "$lastfile") )
+    old_date="$(date +%s --date "${oldFileInfo[1]}")"
 
     filename=$(download)
-    new_schema="$(echo "$filename" | cut -d'.' -f3)"
+    # shellcheck disable=SC2207
+    newFileInfo=( $(readFileName "$filename") )
+
     # only process if schema is same and date is not greater than 7 days
     outdated_date=$(date +%s --date="-7 days")
-    if (( new_schema != old_schema )) || (( old_date < outdated_date)); then
+    if (( newFileInfo[0] != oldFileInfo[0] )) || (( old_date < outdated_date)); then
         full_backup
         return
     fi
