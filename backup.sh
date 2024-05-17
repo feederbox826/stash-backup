@@ -43,7 +43,7 @@ process_backup() {
         filename=$(download)
         mv "$filename" "$filename.full.sqlite"
         filename="$filename.full.sqlite"
-        file_size="$(du -hL "$filename" | cut -f1)"
+        file_size="$(du -bhL "$filename" | cut -f1)"
         echo "Backup complete - $filename | size: $file_size"
         if $NOTIFY_ENABLED; then
             notify "$filename" false "$file_size"
@@ -61,10 +61,10 @@ process_backup() {
     if (( new_schema == old_schema )) && (( old_date > outdated_date)); then
         sqldiff --primarykey "$lastfile" "$filename" > "$filename.diff.sql"
         rm "$filename"
-        DIFF_SIZE="$(du -hL "$filename.diff.sql" | cut -f1)"
-        echo "Backup complete - $filename | diff: $DIFF_SIZE"
+        diff_size="$(du -bhL "$filename.diff.sql" | cut -f1)"
+        echo "Backup complete - $filename.diff.sql | diff: $diff_size"
         if $NOTIFY_ENABLED; then
-            notify "$filename.diff.sql" true "$DIFF_SIZE"
+            notify "$filename.diff.sql" true "$diff_size"
         fi
     fi
 }
