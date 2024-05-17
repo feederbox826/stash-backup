@@ -86,6 +86,7 @@ process_backup() {
         diff_size="$(du -bhL "$filename.diff.sql" | cut -f1)"
         notify "$filename.diff.sql" true "$diff_size"
     fi
+    cd - || exit
 }
 
 validate

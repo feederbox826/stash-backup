@@ -15,8 +15,6 @@ function ctrl_c() {
 CRON_HOUR=$(cut -d ' ' -f2 <<< "$CRON_SCHEDULE")
 
 tar_consolidate() {
-    pwd
-    echo $2.tar.zst
     find . -type f -name "$1" -print0 \
         | tar --remove-files -cf - --null -T - \
         | zstd -19 -T0 --long -q -f -o "$2.tar.zst"
@@ -43,7 +41,6 @@ consolidate_day() {
     else
         searchDate=$(date +%Y%m%d -d "$1/01 + 1 month - 1 day" )
     fi
-    echo $searchDate
     # consolidate older backups
     while [ "$searchDate" != "$endDate" ]; do
         oldFiles=$(find . -type f -name "stash-go.sqlite.*.$searchDate*")
@@ -58,6 +55,7 @@ consolidate_day() {
         tar_consolidate "stash-go.sqlite.${oldFileInfo[0]}.${oldFileInfo[1]}*" "stash-${oldFileInfo[0]}.${oldFileInfo[1]}"
         searchDate=$(date +%Y%m%d -d "$searchDate - 1 day")
     done
+    cd - || exit
 }
 
 pick_consolidation() {
@@ -67,6 +65,7 @@ pick_consolidation() {
         return
     fi
     consolidate_month "$1"
+    cd - || exit
 }
 
 run_consolidate() {
