@@ -4,6 +4,8 @@ services:
     container_name: stash-backup
     volumes:
      - ./stash-backup:/app/backup
+    env_file:
+      - .env
     environment:
       - STASH_URL=http://stash:9999
       - STASH_APIKEY=eyJ

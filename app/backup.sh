@@ -2,7 +2,8 @@
 
 # load environment variables
 # shellcheck source=/dev/null
-if [[ -f ".env.sh" ]]; then source .env.sh; fi
+# shellcheck disable=SC2046
+[ ! -f .env ] || export $(xargs <.env)
 source upload.sh
 source notify.sh
 
@@ -44,7 +45,7 @@ process_backup() {
     mkdir -p "$basedir" && cd "$basedir" || exit
 
     # find full backup file
-    lastfile=$(find . -type f -mtime -7 -name "*.full.sqlite" | tail -n1)
+    lastfile=$(find . -type f -mtime -7 -name "*.full.sqlite" | sort | tail -n1)
     # if no lastfile, just download and exit
     if [[ ! -f "$lastfile" ]]; then
         filename=$(download)
