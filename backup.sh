@@ -29,6 +29,13 @@ download() {
     echo "$filename"
 }
 
+full_backup() {
+        mv "$filename" "$filename.full.sqlite"
+        filename="$filename.full.sqlite"
+        file_size="$(du -bhL "$filename" | cut -f1)"
+        notify "$filename" false "$file_size"
+    }
+
 process_backup() {
     # cd to backup subdir
     mkdir -p backup && cd backup || exit
@@ -41,10 +48,7 @@ process_backup() {
     # if no lastfile, just download and exit
     if [[ ! -f "$lastfile" ]]; then
         filename=$(download)
-        mv "$filename" "$filename.full.sqlite"
-        filename="$filename.full.sqlite"
-        file_size="$(du -bhL "$filename" | cut -f1)"
-        notify "$filename" false "$file_size"
+        full_backup
         return
     fi
     # check new file
@@ -55,17 +59,21 @@ process_backup() {
     new_schema="$(echo "$filename" | cut -d'.' -f3)"
     # only process if schema is same and date is not greater than 7 days
     outdated_date=$(date +%s --date="-7 days")
-    if (( new_schema == old_schema )) && (( old_date > outdated_date)); then
-        sqldiff --primarykey "$lastfile" "$filename" > "$filename.diff.sql"
-        # check size of diff
-        linediff="$(wc -l "$filename.diff.sql" | cut -f1)"
-        if (( linediff > 200 )); then
-            echo "> 200 changes, making full backup"
-            rm "$filename.diff.sql"
-        else
-            rm "$filename"
-            diff_size="$(du -bhL "$filename.diff.sql" | cut -f1)"
-        fi
+    if (( new_schema != old_schema )) || (( old_date < outdated_date)); then
+        full_backup
+        return
+    fi
+    # partial backup
+    sqldiff --primarykey "$lastfile" "$filename" > "$filename.diff.sql"
+    # check size of diff
+    if [ "$( wc -l < "$filename.diff.sql")" -gt 200 ]; then
+        echo "> 200 changes, making full backup"
+        rm "$filename.diff.sql"
+        full_backup
+        return
+    else
+        rm "$filename"
+        diff_size="$(du -bhL "$filename.diff.sql" | cut -f1)"
         notify "$filename.diff.sql" true "$diff_size"
     fi
 }
