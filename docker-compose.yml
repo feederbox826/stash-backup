@@ -1,6 +1,7 @@
 services:
   stash-backup:
-    image: ghcr.io/feederbox826/stash-back
+    image: ghcr.io/feederbox826/stash-backup
+    container_name: stash-backup
     volumes:
      - ./stash-backup:/app/backup
     environment:
