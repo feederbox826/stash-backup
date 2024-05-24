@@ -22,17 +22,19 @@ validate() {
 
 # trigger backup from GQL
 download() {
-    download_url=$(curl -Ssk \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -H "ApiKey: $STASH_APIKEY" \
-    -d '{"query":"mutation backup { backupDatabase(input: { download: true }) }"}' "$STASH_URL" \
-    | jq -r '.data.backupDatabase')
+    download_url=$(wget \
+        --header="Content-Type: application/json" \
+        --header="ApiKey: $STASH_APIKEY" \
+        --post-data='{"query":"mutation backup { backupDatabase(input: { download: true }) }"}' \
+        --no-check-certificate \
+        -qO - "$STASH_URL" \
+        | jq -r '.data.backupDatabase')
     # download backup
     filename=$(basename "$download_url")
-    curl -sko "$filename" \
-        -H "ApiKey: $STASH_APIKEY" \
-        "$download_url"
+    wget \
+        --header="ApiKey: $STASH_APIKEY" \
+        --no-check-certificate \
+        -O "$filename" "$download_url"
     echo "$filename"
 }
 
@@ -90,6 +92,11 @@ process_backup() {
 }
 
 validate
+# do full backup if requested
+if [ "$1" == "full" ]; then
+    full_backup
+    exit
+fi
 process_backup
 # upload with tool
 if $UPLOAD_ENABLED; then
