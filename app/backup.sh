@@ -13,6 +13,8 @@ function ctrl_c() {
     exit 1
 }
 
+set -e
+
 validate() {
     if [ -z "$STASH_URL" ] || [ -z "$STASH_APIKEY" ]; then
         echo "STASH_URL and STASH_APIKEY must be set"
@@ -34,7 +36,7 @@ download() {
     wget \
         --header="ApiKey: $STASH_APIKEY" \
         --no-check-certificate \
-        -O "$filename" "$download_url"
+        -qO "$filename" "$download_url"
     echo "$filename"
 }
 
