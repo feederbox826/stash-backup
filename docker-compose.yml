@@ -9,6 +9,7 @@ services:
     environment:
       - STASH_URL=http://stash:9999
       - STASH_APIKEY=eyJ
-      - DIFF_CRON=*/10 * * * * # every 10 minutes
+      - DIFF_CRON=0 0 * * * # every day
       - FULL_CRON=0 0 */7 * * # every 7 days
       - CONSOLIDATE_CRON=0 0 2 * * # second of every month
+      - IMG_CRON=0 0 1 * * # first of every month

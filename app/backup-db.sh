@@ -48,8 +48,8 @@ full_backup() {
     }
 
 process_backup() {
-    # cd to backup subdir
-    mkdir -p backup && cd backup || exit
+    # cd to backup/db subdir
+    mkdir -p backup/db && cd backup/db || exit
     # set up directory
     basedir=$(date +%Y/%m)
     mkdir -p "$basedir" && cd "$basedir" || exit
