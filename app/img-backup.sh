@@ -8,7 +8,7 @@ validate() {
 }
 
 load_performers() {
-    mkdir -p performers && cd performers || exit
+    mkdir -p backup/performers && cd backup/performers || exit
     # load performers
     all_performers=$(wget \
         --header="Content-Type: application/json" \
@@ -22,7 +22,7 @@ load_performers() {
 }
 
 load_tags() {
-    mkdir -p tags && cd tags || exit
+    mkdir -p backup/tags && cd backup/tags || exit
     # load tags
     all_tags=$(wget \
         --header="Content-Type: application/json" \
