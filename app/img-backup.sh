@@ -47,5 +47,5 @@ download_img() {
 validate
 echo "Downloading tag images..."
 load_tags
-echo "Downloading performer iamges..."
+echo "Downloading performer images..."
 load_performers
