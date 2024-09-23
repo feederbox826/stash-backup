@@ -14,6 +14,5 @@ export IMG_CRON=${IMG_CRON:-"0 0 1 * *"}
 echo "$IMG_CRON cd /app && /app/img-backup.sh" >> /etc/crontabs/root
 
 # run backup
+/app/backup-db.sh && /app/img-backup.sh
 crond -f &
-/app/backup-db.sh &
-/app/img-backup.sh &

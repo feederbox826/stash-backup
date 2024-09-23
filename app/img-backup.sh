@@ -44,7 +44,7 @@ download_img() {
         --content-disposition \
         --no-check-certificate \
         --show-progress \
-        -xq -nc -i -
+        -x -nv -nc -i -
 }
 
 validate
