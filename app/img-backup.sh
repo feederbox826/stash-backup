@@ -17,6 +17,7 @@ load_performers() {
         --no-check-certificate \
         -qO - "$STASH_URL")
     echo "$all_performers" >> "$(date +%Y%m%d_%H%M%S)".performers.json
+    echo "Downloaded performers json"
     echo "$all_performers" | jq -r '.data.allPerformers[].image_path' | download_img
     cd - > /dev/null || exit
 }
@@ -31,6 +32,7 @@ load_tags() {
         --no-check-certificate \
         -qO - "$STASH_URL")
     echo "$all_tags" >> "$(date +%Y%m%d_%H%M%S)".tags.json
+    echo "Downloaded tags json"
     echo "$all_tags" | jq -r '.data.allTags[].image_path' | download_img
     cd - > /dev/null || exit
 }
@@ -41,6 +43,7 @@ download_img() {
         --header="ApiKey: $STASH_APIKEY" \
         --content-disposition \
         --no-check-certificate \
+        --show-progress \
         -xq -nc -i -
 }
 
