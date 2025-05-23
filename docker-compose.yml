@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     environment:
-      - STASH_URL=http://stash:9999
+      - STASH_URL=http://stash:9999/graphql
       - STASH_APIKEY=eyJ
       - DIFF_CRON=0 0 * * * # every day
       - FULL_CRON=0 0 */7 * * # every 7 days
