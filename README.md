@@ -1,5 +1,3 @@
-# WARNING - THIS IS ALPHA SOFTWARE - PATHS AND ENV VARIABLES WILL CHANGE
-
 # Advanced stash backup system
 
 ## Backup

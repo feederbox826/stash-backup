@@ -1,4 +1,4 @@
-FROM alpine:3.20 as final
+FROM alpine:3.22 as final
 WORKDIR /app
 VOLUME /app/backup
 RUN apk add --no-cache \
