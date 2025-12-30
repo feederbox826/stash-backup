@@ -16,4 +16,4 @@ echo "$IMG_CRON cd /app && /app/img-backup.sh" >> /etc/crontabs/root
 # run backup
 /app/backup-db.sh && /app/img-backup.sh
 echo "Startup backup complete, starting cron"
-crond -f &
+crond -f
