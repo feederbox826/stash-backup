@@ -21,7 +21,7 @@ notify_stdout() {
 
 notify_discord() {
     content="Backup complete - diff: $2 with size $3"
-    curl -X POST -H "Content-Type: application/json" -d "{
+    wget -qO- --post-data "{
         \"content\": \"$content\",
         \"username\": \"stash-backup\"
     }" "$DISCORD_WEBHOOK"

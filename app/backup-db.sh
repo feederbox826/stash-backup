@@ -7,6 +7,7 @@
 source upload.sh
 source notify.sh
 source utils.sh
+source stashapp.sh
 
 trap ctrl_c INT
 function ctrl_c() {
@@ -24,28 +25,19 @@ validate() {
 
 # trigger backup from GQL
 download() {
-    download_url=$(wget \
-        --header="Content-Type: application/json" \
-        --header="ApiKey: $STASH_APIKEY" \
-        --post-data='{"query":"mutation backup { backupDatabase(input: { download: true }) }"}' \
-        --no-check-certificate \
-        -qO - "$STASH_URL" \
-        | jq -r '.data.backupDatabase')
+    download_url=$(stash_gql 'mutation backup { backupDatabase(input: { download: true }) }' | jq -r '.data.backupDatabase')
     # download backup
     filename=$(basename "$download_url")
-    wget \
-        --header="ApiKey: $STASH_APIKEY" \
-        --no-check-certificate \
-        -qO "$filename" "$download_url"
+    stash_dump "$filename" "$download_url"
     echo "$filename"
 }
 
 full_backup() {
-        mv "$filename" "$filename.full.sqlite"
-        filename="$filename.full.sqlite"
-        file_size="$(du -bhL "$filename" | cut -f1)"
-        notify "$filename" false "$file_size"
-    }
+    mv "$filename" "$filename.full.sqlite"
+    filename="$filename.full.sqlite"
+    file_size="$(du -bhL "$filename" | cut -f1)"
+    notify "$filename" false "$file_size"
+}
 
 process_backup() {
     # cd to backup/db subdir

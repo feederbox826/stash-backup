@@ -11,9 +11,9 @@ export CONSOLIDATE_CRON=${CONSOLIDATE_CRON:-"0 0 2 * *"}
 echo "$CONSOLIDATE_CRON cd /app && /app/consolidate-db.sh" >> /etc/crontabs/root
 
 export IMG_CRON=${IMG_CRON:-"0 0 1 * *"}
-echo "$IMG_CRON cd /app && /app/img-backup.sh" >> /etc/crontabs/root
+echo "$IMG_CRON cd /app && /app/backup-img.sh" >> /etc/crontabs/root
 
 # run backup
-/app/backup-db.sh && /app/img-backup.sh
+/app/backup-db.sh && /app/backup-img.sh
 echo "Startup backup complete, starting cron"
 crond -f
