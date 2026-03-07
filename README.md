@@ -13,13 +13,18 @@
 
 Configure upload and notify with `.env` and `notify.sh`
 
-## File size savings
-Database: 9.3MB
-- rescrape of scenes, lots of edits and diffs: 29.0MB
-- 1 Day: 2.7MB
-- month: tbd...
-
 ## Restoration
 ```bash
 cat backup.diff.sql | sqlite3 full.sqlite
 ```
+
+## File size savings (2025)
+- `DIFF` 1/10mins
+- `FULL` 1/day
+- Database: 14.1 -> 20.5MB
+- rescrape of scenes, lots of edits and diffs: 29.0MB
+- Average day: 18.8MB
+- Average month: 575.5MB
+- Year: 6.8G (70.1MB compressed)
+  - 397 full backups
+  - 12,690 diffs
